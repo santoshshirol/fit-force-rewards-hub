@@ -51,3 +51,23 @@ export interface ActivityType {
   unit: string;
   goalPerDay: number;
 }
+
+// Goal type definition
+export interface Goal {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  targetValue: number;
+  currentValue: number;
+  unit: string;
+  startDate: string;
+  endDate: string;
+  status: 'not-started' | 'in-progress' | 'completed' | 'failed';
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  managerNotes?: string;
+  healthBonusEligible: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

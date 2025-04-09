@@ -10,7 +10,8 @@ import {
   ShoppingBag, 
   User as UserIcon, 
   X, 
-  FootprintsIcon 
+  FootprintsIcon,
+  Target 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { currentUser } from "@/utils/mockData";
@@ -45,6 +46,7 @@ const Layout = ({ children }: LayoutProps) => {
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
     { path: "/activities", label: "Activities", icon: <FootprintsIcon className="w-5 h-5" /> },
+    { path: "/goals", label: "Goals", icon: <Target className="w-5 h-5" /> },
     { path: "/rewards", label: "Rewards", icon: <ShoppingBag className="w-5 h-5" /> },
     { path: "/leaderboard", label: "Leaderboard", icon: <Award className="w-5 h-5" /> },
     { path: "/profile", label: "Profile", icon: <UserIcon className="w-5 h-5" /> },
