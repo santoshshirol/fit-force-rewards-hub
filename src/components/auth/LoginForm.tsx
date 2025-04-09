@@ -7,45 +7,63 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   
+  const { login, signup, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // In a real app, this would validate and authenticate with a backend
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await login(email, password);
       toast({
         title: "Logged in successfully",
         description: "Welcome back to FitForce!",
       });
       navigate("/dashboard");
-    }, 1000);
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Please check your email and password.",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // In a real app, this would create a new user account
-    setTimeout(() => {
-      setIsLoading(false);
+    if (!email || !password || !name || !department) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await signup(email, password, name, department);
       toast({
         title: "Account created",
         description: "Your account has been created successfully!",
       });
       navigate("/dashboard");
-    }, 1000);
+    } catch (error) {
+      toast({
+        title: "Signup failed",
+        description: "Please try again with different information.",
+        variant: "destructive",
+      });
+    }
   };
   
   return (

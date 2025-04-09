@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Navigate } from "react-router-dom";
 import { 
   Activity, 
   Award, 
@@ -9,11 +9,13 @@ import {
   Menu, 
   ShoppingBag, 
   User as UserIcon, 
-  X 
+  X, 
+  FootprintsIcon 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { currentUser } from "@/utils/mockData";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,24 +25,38 @@ const Layout = ({ children }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { toast } = useToast();
+  const { logout, isAuthenticated, user } = useAuth();
+  
+  // If not authenticated, redirect to home page
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
   
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
   const handleLogout = () => {
+    logout();
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
     });
-    // In a real app, this would handle actual logout logic
   };
   
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
-    { path: "/activities", label: "Activities", icon: <Activity className="w-5 h-5" /> },
+    { path: "/activities", label: "Activities", icon: <FootprintsIcon className="w-5 h-5" /> },
     { path: "/rewards", label: "Rewards", icon: <ShoppingBag className="w-5 h-5" /> },
     { path: "/leaderboard", label: "Leaderboard", icon: <Award className="w-5 h-5" /> },
     { path: "/profile", label: "Profile", icon: <UserIcon className="w-5 h-5" /> },
   ];
+  
+  // We'll use either the authenticated user or fallback to the mock data
+  const displayUser = user ? {
+    name: user.name,
+    avatarUrl: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.id}`,
+    level: currentUser.level,
+    points: currentUser.points
+  } : currentUser;
   
   return (
     <div className="min-h-screen flex bg-background">
@@ -79,17 +95,17 @@ const Layout = ({ children }: LayoutProps) => {
           <div className="p-4 border-b">
             <div className="flex items-center space-x-3">
               <img
-                src={currentUser.avatarUrl}
+                src={displayUser.avatarUrl}
                 alt="User avatar"
                 className="w-12 h-12 rounded-full"
               />
               <div>
-                <p className="font-medium">{currentUser.name}</p>
+                <p className="font-medium">{displayUser.name}</p>
                 <div className="flex items-center space-x-1">
-                  <span className="text-sm text-gray-500">Level {currentUser.level}</span>
+                  <span className="text-sm text-gray-500">Level {displayUser.level}</span>
                   <span className="text-xs mx-1 text-gray-400">•</span>
                   <span className="text-sm text-fitness-purple font-semibold">
-                    {currentUser.points} pts
+                    {displayUser.points} pts
                   </span>
                 </div>
               </div>
