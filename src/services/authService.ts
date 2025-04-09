@@ -5,6 +5,7 @@ interface AuthUser {
   email: string;
   name: string;
   token: string;
+  department?: string;
 }
 
 // Save user to localStorage
@@ -65,6 +66,7 @@ export const signupUser = async (
       id: 'user-' + Math.random().toString(36).substring(2),
       email: email,
       name: name || email.split('@')[0],
+      department: department,
       token: 'mock-jwt-token-' + Math.random().toString(36).substring(2)
     };
     
@@ -78,4 +80,41 @@ export const signupUser = async (
 // Mock logout function
 export const logoutUser = (): void => {
   removeUser();
+};
+
+// Update user information
+export const updateUser = async (userData: Partial<AuthUser>): Promise<AuthUser> => {
+  // Get current user data
+  const currentUser = getUser();
+  if (!currentUser) {
+    throw new Error('No user is logged in');
+  }
+
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Update user data
+  const updatedUser = {
+    ...currentUser,
+    ...userData
+  };
+  
+  saveUser(updatedUser);
+  return updatedUser;
+};
+
+// Update password
+export const updatePassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<boolean> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // In a real app, this would verify the current password and update to the new one
+  if (currentPassword && newPassword && newPassword.length > 3) {
+    return true;
+  }
+  
+  throw new Error('Invalid password update information');
 };

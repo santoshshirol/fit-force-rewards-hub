@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { currentUser } from "@/utils/mockData";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useAuth } from "@/context/AuthContext";
 
 const activityData = [
   { name: "Mon", steps: 9500, workout: 1, sleep: 7.5 },
@@ -32,24 +33,45 @@ const pointsDistribution = [
 const COLORS = ["#9b87f5", "#F97316", "#10b981", "#3b82f6", "#f43f5e"];
 
 const Profile = () => {
-  const [name, setName] = useState(currentUser.name);
-  const [email, setEmail] = useState(currentUser.email);
-  const [department, setDepartment] = useState(currentUser.department);
+  const { toast } = useToast();
+  const { user, updateUserInfo, changePassword } = useAuth();
+  
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [department, setDepartment] = useState(user?.department || '');
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
-  const { toast } = useToast();
+  // Mock data for displays
+  const userPoints = 1250;
+  const userLevel = 3;
+  const joinedDate = new Date('2023-10-15').toISOString();
   
-  const handleProfileUpdate = (e: React.FormEvent) => {
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Profile updated",
-      description: "Your profile information has been updated.",
-    });
+    
+    try {
+      await updateUserInfo({
+        name,
+        email,
+        department
+      });
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error updating profile",
+        description: "There was an error updating your profile information.",
+        variant: "destructive"
+      });
+    }
   };
   
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (newPassword !== confirmPassword) {
@@ -61,15 +83,30 @@ const Profile = () => {
       return;
     }
     
-    toast({
-      title: "Password changed",
-      description: "Your password has been updated successfully.",
-    });
-    
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      await changePassword(currentPassword, newPassword);
+      
+      toast({
+        title: "Password changed",
+        description: "Your password has been updated successfully.",
+      });
+      
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      toast({
+        title: "Error changing password",
+        description: "There was an error changing your password. Please check your current password.",
+        variant: "destructive"
+      });
+    }
   };
+  
+  // Use custom avatar URL or generate from user ID
+  const avatarUrl = user?.id 
+    ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.id}` 
+    : currentUser.avatarUrl;
   
   return (
     <Layout>
@@ -100,15 +137,15 @@ const Profile = () => {
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={currentUser.avatarUrl}
+                      src={avatarUrl}
                       alt="Profile"
                       className="w-24 h-24 rounded-full"
                     />
                     <div>
-                      <h3 className="font-medium text-lg">{currentUser.name}</h3>
-                      <p className="text-muted-foreground">{currentUser.department}</p>
+                      <h3 className="font-medium text-lg">{user?.name || 'User'}</h3>
+                      <p className="text-muted-foreground">{user?.department || 'Department'}</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Member since {format(new Date(currentUser.joinedDate), "MMMM yyyy")}
+                        Member since {format(new Date(joinedDate), "MMMM yyyy")}
                       </p>
                     </div>
                   </div>
@@ -116,19 +153,19 @@ const Profile = () => {
                   <div className="pt-2">
                     <div className="flex justify-between py-2">
                       <span className="text-muted-foreground">Email</span>
-                      <span>{currentUser.email}</span>
+                      <span>{user?.email || 'email@example.com'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-t">
                       <span className="text-muted-foreground">Total Points</span>
-                      <span className="font-medium text-fitness-purple">{currentUser.points} pts</span>
+                      <span className="font-medium text-fitness-purple">{userPoints} pts</span>
                     </div>
                     <div className="flex justify-between py-2 border-t">
                       <span className="text-muted-foreground">Current Level</span>
-                      <span>Level {currentUser.level}</span>
+                      <span>Level {userLevel}</span>
                     </div>
                     <div className="flex justify-between py-2 border-t">
                       <span className="text-muted-foreground">Department</span>
-                      <span>{currentUser.department}</span>
+                      <span>{user?.department || 'Department'}</span>
                     </div>
                   </div>
                 </CardContent>

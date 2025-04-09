@@ -50,13 +50,13 @@ const Layout = ({ children }: LayoutProps) => {
     { path: "/profile", label: "Profile", icon: <UserIcon className="w-5 h-5" /> },
   ];
   
-  // We'll use either the authenticated user or fallback to the mock data
-  const displayUser = user ? {
-    name: user.name,
-    avatarUrl: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.id}`,
+  // Get the current user's data - fallback to mock data for level and points
+  const displayUser = {
+    name: user?.name || 'User',
+    avatarUrl: user?.id ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.id}` : currentUser.avatarUrl,
     level: currentUser.level,
     points: currentUser.points
-  } : currentUser;
+  };
   
   return (
     <div className="min-h-screen flex bg-background">

@@ -1,12 +1,13 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { getUser, isLoggedIn, loginUser, logoutUser, signupUser } from "@/services/authService";
+import { getUser, isLoggedIn, loginUser, logoutUser, signupUser, updateUser, updatePassword } from "@/services/authService";
 
 interface AuthUser {
   id: string;
   email: string;
   name: string;
   token: string;
+  department?: string;
 }
 
 interface AuthContextType {
@@ -16,6 +17,8 @@ interface AuthContextType {
   signup: (email: string, password: string, name: string, department: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  updateUserInfo: (userData: Partial<AuthUser>) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,6 +60,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     logoutUser();
     setUser(null);
   };
+
+  const updateUserInfo = async (userData: Partial<AuthUser>) => {
+    setIsLoading(true);
+    try {
+      const updatedUser = await updateUser(userData);
+      setUser(updatedUser);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    setIsLoading(true);
+    try {
+      return await updatePassword(currentPassword, newPassword);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   return (
     <AuthContext.Provider 
@@ -66,7 +88,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login, 
         signup, 
         logout, 
-        isLoading 
+        isLoading,
+        updateUserInfo,
+        changePassword
       }}
     >
       {children}
