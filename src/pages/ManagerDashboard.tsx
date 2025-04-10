@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Award, ChevronRight, Users, Shield, TrendingUp, Target, Trophy } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Award, ChevronRight, Users, Shield, TrendingUp, Target, Trophy, Star, Medal } from "lucide-react";
 import { getDirectReports, getTeamHealthStatus, getUserGoals } from "@/utils/goalsData";
 import { mockUsers } from "@/utils/mockData";
 import { useAuth } from "@/context/AuthContext";
@@ -46,6 +47,30 @@ const ManagerDashboard = () => {
     const userGoals = getUserGoals(userId);
     return count + userGoals.filter(g => g.status === "completed" && g.priority === "high").length;
   }, 0);
+  
+  // Count team members eligible for health bonus
+  const teamMembersEligibleForBonus = teamHealthStats.filter(stats => stats.healthBonusEligibility >= 75).length;
+  
+  // Calculate top performing categories
+  const goalsByCategory = directReportIds.reduce((categories: Record<string, {total: number, completed: number}>, userId) => {
+    const userGoals = getUserGoals(userId);
+    userGoals.forEach(goal => {
+      if (!categories[goal.category]) {
+        categories[goal.category] = { total: 0, completed: 0 };
+      }
+      categories[goal.category].total += 1;
+      if (goal.status === "completed") {
+        categories[goal.category].completed += 1;
+      }
+    });
+    return categories;
+  }, {});
+  
+  // Find top category
+  const topCategory = Object.entries(goalsByCategory).reduce((top, [category, stats]) => {
+    const completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
+    return completionRate > top.rate ? { category, rate: completionRate } : top;
+  }, { category: "None", rate: 0 });
   
   return (
     <Layout>
@@ -102,8 +127,8 @@ const ManagerDashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Manager stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {/* Additional team insights */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Team Members</CardTitle>
@@ -126,14 +151,26 @@ const ManagerDashboard = () => {
           
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Health Bonus Eligibility</CardTitle>
+              <CardTitle className="text-sm font-medium">Health Bonus Eligible</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{teamBonusEligibility.toFixed(0)}%</div>
-              <Progress 
-                value={teamBonusEligibility} 
-                className={`h-2 mt-2 ${teamBonusEligibility >= 75 ? "bg-green-500" : "bg-amber-500"}`} 
-              />
+              <div className="text-2xl font-bold">{teamMembersEligibleForBonus} team members</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {((teamMembersEligibleForBonus / directReports.length) * 100).toFixed(0)}% of team
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Top Performing Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{topCategory.category}</div>
+              <div className="flex items-center mt-1">
+                <Star className="w-4 h-4 text-amber-400 mr-1" />
+                <span className="text-xs">{topCategory.rate.toFixed(0)}% completion rate</span>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -152,7 +189,7 @@ const ManagerDashboard = () => {
                 <CardTitle>Team Health & Performance Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   {teamHealthStats.map((stats, index) => {
                     const teamMember = mockUsers.find(u => u.id === stats.userId);
                     if (!teamMember) return null;
@@ -264,6 +301,7 @@ const ManagerDashboard = () => {
                       <TableHead>Completed Goals</TableHead>
                       <TableHead>Health Bonus</TableHead>
                       <TableHead>Top Achievement</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -315,6 +353,22 @@ const ManagerDashboard = () => {
                               </div>
                             ) : (
                               "No completed goals"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {stats.completedGoals > 0 ? (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Medal className="w-3 h-3 mr-1" />
+                                Active Achiever
+                              </Badge>
+                            ) : stats.inProgressGoals > 0 ? (
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                In Progress
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-200">
+                                Not Started
+                              </Badge>
                             )}
                           </TableCell>
                         </TableRow>

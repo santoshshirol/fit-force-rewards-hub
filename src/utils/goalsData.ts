@@ -1,4 +1,3 @@
-
 import { Goal } from "@/types";
 
 // Mock data for goals
@@ -191,6 +190,82 @@ export const mockGoals: Goal[] = [
     healthBonusEligible: true,
     createdAt: "2024-12-20",
     updatedAt: "2025-02-15"
+  },
+  
+  // Priya's goals
+  {
+    id: "goal11",
+    userId: "6",
+    title: "Daily Meditation",
+    description: "Practice meditation for 15 minutes daily",
+    targetValue: 30,
+    currentValue: 28,
+    unit: "days",
+    startDate: "2025-01-01",
+    endDate: "2025-01-30",
+    status: "completed",
+    category: "Mental Health",
+    priority: "high",
+    managerNotes: "Excellent adherence to the meditation schedule",
+    healthBonusEligible: true,
+    createdAt: "2024-12-28",
+    updatedAt: "2025-01-29"
+  },
+  {
+    id: "goal12",
+    userId: "6",
+    title: "Healthy Meal Prep",
+    description: "Prepare healthy lunches for the work week",
+    targetValue: 8,
+    currentValue: 7,
+    unit: "weeks",
+    startDate: "2025-01-15",
+    endDate: "2025-03-15",
+    status: "in-progress",
+    category: "Nutrition",
+    priority: "medium",
+    managerNotes: "Great commitment to nutrition goals",
+    healthBonusEligible: true,
+    createdAt: "2025-01-10",
+    updatedAt: "2025-03-05"
+  },
+  
+  // Rajesh's goals
+  {
+    id: "goal13",
+    userId: "7",
+    title: "Cycling Challenge",
+    description: "Cycle to work at least 3 times a week",
+    targetValue: 12,
+    currentValue: 12,
+    unit: "weeks",
+    startDate: "2025-01-01",
+    endDate: "2025-03-31",
+    status: "completed",
+    category: "Physical Health",
+    priority: "high",
+    managerNotes: "Successfully completed the full cycling challenge!",
+    healthBonusEligible: true,
+    createdAt: "2024-12-20",
+    updatedAt: "2025-03-31"
+  },
+  {
+    id: "goal14",
+    userId: "7",
+    title: "Reduce Caffeine Intake",
+    description: "Limit coffee consumption to 1 cup per day",
+    targetValue: 30,
+    currentValue: 25,
+    unit: "days",
+    startDate: "2025-02-01",
+    endDate: "2025-03-02",
+    status: "completed",
+    category: "Nutrition",
+    priority: "low",
+    managerNotes: "Great progress in building healthier habits",
+    healthBonusEligible: true,
+    createdAt: "2025-01-25",
+    updatedAt: "2025-03-01"
   }
 ];
 
@@ -213,7 +288,7 @@ export const calculateHealthBonusEligibility = (userId: string): number => {
 export const getDirectReports = (managerId: string): string[] => {
   // For demo purposes, if managerId is "1" (Subhransu), return IDs of direct reports
   if (managerId === "1") {
-    return ["2", "3", "4", "5"]; // Devendra, Nagarjun, Santosh, and Anil
+    return ["2", "3", "4", "5", "6", "7"]; // Added Priya and Rajesh
   }
   return [];
 };
