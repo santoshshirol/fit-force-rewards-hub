@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { 
@@ -11,7 +10,8 @@ import {
   User as UserIcon, 
   X, 
   FootprintsIcon,
-  Target 
+  Target,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { currentUser } from "@/utils/mockData";
@@ -43,15 +43,6 @@ const Layout = ({ children }: LayoutProps) => {
     });
   };
   
-  const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
-    { path: "/activities", label: "Activities", icon: <FootprintsIcon className="w-5 h-5" /> },
-    { path: "/goals", label: "Goals", icon: <Target className="w-5 h-5" /> },
-    { path: "/rewards", label: "Rewards", icon: <ShoppingBag className="w-5 h-5" /> },
-    { path: "/leaderboard", label: "Leaderboard", icon: <Award className="w-5 h-5" /> },
-    { path: "/profile", label: "Profile", icon: <UserIcon className="w-5 h-5" /> },
-  ];
-  
   // Get the current user's data - fallback to mock data for level and points
   const displayUser = {
     name: user?.name || 'User',
@@ -59,6 +50,17 @@ const Layout = ({ children }: LayoutProps) => {
     level: currentUser.level,
     points: currentUser.points
   };
+
+  // Define navigation items including the Manager Dashboard
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
+    { path: "/activities", label: "Activities", icon: <FootprintsIcon className="w-5 h-5" /> },
+    { path: "/goals", label: "Goals", icon: <Target className="w-5 h-5" /> },
+    { path: "/rewards", label: "Rewards", icon: <ShoppingBag className="w-5 h-5" /> },
+    { path: "/leaderboard", label: "Leaderboard", icon: <Award className="w-5 h-5" /> },
+    { path: "/profile", label: "Profile", icon: <UserIcon className="w-5 h-5" /> },
+    { path: "/manager", label: "Manager Dashboard", icon: <Users className="w-5 h-5" /> },
+  ];
   
   return (
     <div className="min-h-screen flex bg-background">
