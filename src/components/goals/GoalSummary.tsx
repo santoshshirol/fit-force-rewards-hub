@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { calculateHealthBonusEligibility, getUserGoals } from "@/utils/goalsData";
 import { Target, Award, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface GoalSummaryProps {
   userId: string;
@@ -49,8 +50,10 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
           <div className="text-2xl font-bold">{healthBonusPercentage.toFixed(0)}%</div>
           <Progress
             value={healthBonusPercentage}
-            className="h-2 mt-2"
-            indicatorColor={healthBonusPercentage >= 75 ? "bg-green-500" : "bg-amber-500"}
+            className={cn(
+              "h-2 mt-2",
+              healthBonusPercentage >= 75 ? "bg-green-500" : "bg-amber-500"
+            )}
           />
           <p className="text-xs text-muted-foreground mt-2">
             {healthBonusPercentage >= 75 

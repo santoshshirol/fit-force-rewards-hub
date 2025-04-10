@@ -13,6 +13,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Rewards from "./pages/Rewards";
 import Profile from "./pages/Profile";
 import Goals from "./pages/Goals";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -34,6 +35,7 @@ const App = () => {
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/goals" element={<Goals />} />
+              <Route path="/manager" element={<ManagerDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

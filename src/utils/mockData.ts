@@ -4,22 +4,22 @@ import { Activity, User, Reward, LeaderboardEntry } from '../types';
 // User mock data
 export const currentUser: User = {
   id: '1',
-  name: 'Alex Johnson',
-  email: 'alex.johnson@company.com',
-  avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Alex',
+  name: 'Subhransu Panda',
+  email: 'subhransu.panda@company.com',
+  avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Subhransu',
   points: 1250,
   level: 3,
   joinedDate: new Date('2023-10-15').toISOString(),
-  department: 'Marketing',
+  department: 'IT',
 };
 
 export const mockUsers: User[] = [
   currentUser,
   {
     id: '2',
-    name: 'Jamie Smith',
-    email: 'jamie.smith@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Jamie',
+    name: 'Devendra Kumar',
+    email: 'devendra.kumar@company.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Devendra',
     points: 1680,
     level: 4,
     joinedDate: new Date('2023-09-10').toISOString(),
@@ -27,9 +27,9 @@ export const mockUsers: User[] = [
   },
   {
     id: '3',
-    name: 'Taylor Rodriguez',
-    email: 'taylor.r@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Taylor',
+    name: 'Nagarjun Reddy',
+    email: 'nagarjun.reddy@company.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nagarjun',
     points: 950,
     level: 2,
     joinedDate: new Date('2023-11-05').toISOString(),
@@ -37,9 +37,9 @@ export const mockUsers: User[] = [
   },
   {
     id: '4',
-    name: 'Morgan Lee',
-    email: 'morgan.lee@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Morgan',
+    name: 'Santosh Singh',
+    email: 'santosh.singh@company.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Santosh',
     points: 2200,
     level: 5,
     joinedDate: new Date('2023-08-20').toISOString(),
@@ -47,9 +47,9 @@ export const mockUsers: User[] = [
   },
   {
     id: '5',
-    name: 'Casey Williams',
-    email: 'c.williams@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Casey',
+    name: 'Anil Sharma',
+    email: 'anil.sharma@company.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Anil',
     points: 1100,
     level: 3,
     joinedDate: new Date('2023-10-01').toISOString(),
