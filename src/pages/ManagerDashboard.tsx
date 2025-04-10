@@ -6,11 +6,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Award, ChevronRight, Users } from "lucide-react";
-import { getDirectReports, getTeamHealthStatus } from "@/utils/goalsData";
+import { Award, ChevronRight, Users, Shield, TrendingUp, Target, Trophy } from "lucide-react";
+import { getDirectReports, getTeamHealthStatus, getUserGoals } from "@/utils/goalsData";
 import { mockUsers } from "@/utils/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
@@ -32,15 +40,67 @@ const ManagerDashboard = () => {
     ? teamHealthStats.reduce((sum, member) => sum + member.healthBonusEligibility, 0) / teamHealthStats.length 
     : 0;
   
+  // Team achievements - count completed goals across team
+  const totalCompletedGoals = teamHealthStats.reduce((sum, member) => sum + member.completedGoals, 0);
+  const highPriorityGoalsCompleted = directReportIds.reduce((count, userId) => {
+    const userGoals = getUserGoals(userId);
+    return count + userGoals.filter(g => g.status === "completed" && g.priority === "high").length;
+  }, 0);
+  
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Manager Dashboard</h1>
-          <p className="text-muted-foreground">
-            Monitor your team's health and performance goals
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Manager Dashboard</h1>
+            <p className="text-muted-foreground">
+              Monitor your team's health and performance goals
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+              <Trophy className="w-4 h-4 mr-1" />
+              Team Achievement
+            </div>
+          </div>
         </div>
+        
+        {/* Team Achievements */}
+        <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-100">
+          <CardContent className="pt-6">
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-indigo-100 p-3 rounded-full">
+                  <Target className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Goals Completed</p>
+                  <h3 className="text-2xl font-bold">{totalCompletedGoals}</h3>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="bg-purple-100 p-3 rounded-full">
+                  <Shield className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Health Bonus Eligibility</p>
+                  <h3 className="text-2xl font-bold">{teamBonusEligibility.toFixed(0)}%</h3>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="bg-emerald-100 p-3 rounded-full">
+                  <Award className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">High Priority Completions</p>
+                  <h3 className="text-2xl font-bold">{highPriorityGoalsCompleted}</h3>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
         {/* Manager stats */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -83,6 +143,7 @@ const ManagerDashboard = () => {
           <TabsList>
             <TabsTrigger value="overview">Team Overview</TabsTrigger>
             <TabsTrigger value="details">Individual Details</TabsTrigger>
+            <TabsTrigger value="achievements">Team Achievements</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview">
@@ -186,6 +247,81 @@ const ManagerDashboard = () => {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="achievements">
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Health Goal Achievements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Team Member</TableHead>
+                      <TableHead>Completed Goals</TableHead>
+                      <TableHead>Health Bonus</TableHead>
+                      <TableHead>Top Achievement</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {teamHealthStats.map(stats => {
+                      const teamMember = mockUsers.find(u => u.id === stats.userId);
+                      if (!teamMember) return null;
+                      
+                      // Get top/most recent completed goal
+                      const userGoals = getUserGoals(teamMember.id);
+                      const completedGoals = userGoals.filter(g => g.status === "completed");
+                      const topGoal = completedGoals.length > 0 
+                        ? completedGoals.sort((a, b) => 
+                            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]
+                        : null;
+                      
+                      return (
+                        <TableRow key={teamMember.id}>
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={teamMember.avatarUrl} alt={teamMember.name} />
+                                <AvatarFallback>{teamMember.name.substring(0, 2)}</AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">{teamMember.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{stats.completedGoals} goals</TableCell>
+                          <TableCell>
+                            <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              stats.healthBonusEligibility >= 75 
+                                ? "bg-green-100 text-green-800" 
+                                : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {stats.healthBonusEligibility >= 75 ? (
+                                <>
+                                  <Award className="mr-1 h-3 w-3" />
+                                  Eligible
+                                </>
+                              ) : (
+                                <>Not Yet Eligible</>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {topGoal ? (
+                              <div className="text-sm">
+                                <p className="font-medium">{topGoal.title}</p>
+                                <p className="text-xs text-muted-foreground">{topGoal.category}</p>
+                              </div>
+                            ) : (
+                              "No completed goals"
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </TabsContent>
