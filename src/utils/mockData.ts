@@ -1,10 +1,11 @@
+
 import { Activity, User, Reward, LeaderboardEntry } from '../types';
 
 // User mock data
 export const currentUser: User = {
   id: '1',
-  name: 'Subhransu Panda',
-  email: 'subhransu.panda@company.com',
+  name: 'Subhransu',
+  email: 'subhransu@company.com',
   avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Subhransu',
   points: 1250,
   level: 3,
@@ -16,8 +17,8 @@ export const mockUsers: User[] = [
   currentUser,
   {
     id: '2',
-    name: 'Devendra Kumar',
-    email: 'devendra.kumar@company.com',
+    name: 'Devendra',
+    email: 'devendra@company.com',
     avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Devendra',
     points: 1680,
     level: 4,
@@ -26,8 +27,8 @@ export const mockUsers: User[] = [
   },
   {
     id: '3',
-    name: 'Nagarjun Reddy',
-    email: 'nagarjun.reddy@company.com',
+    name: 'Nagarjun R',
+    email: 'nagarjun.r@company.com',
     avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nagarjun',
     points: 950,
     level: 2,
@@ -36,8 +37,8 @@ export const mockUsers: User[] = [
   },
   {
     id: '4',
-    name: 'Santosh Singh',
-    email: 'santosh.singh@company.com',
+    name: 'Santosh Shirol',
+    email: 'santosh.shirol@company.com',
     avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Santosh',
     points: 2200,
     level: 5,
