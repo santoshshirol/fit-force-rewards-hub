@@ -69,6 +69,9 @@ const Index = () => {
             <p>
               Ready to start your wellness journey? Click "Get Started" to create your account and begin tracking your activities today.
             </p>
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setLearnMoreOpen(false)}>Close</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

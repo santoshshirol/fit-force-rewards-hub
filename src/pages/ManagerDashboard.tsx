@@ -7,8 +7,12 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Award, ChevronRight, Users, Shield, TrendingUp, Target, Trophy, Star, Medal } from "lucide-react";
-import { getDirectReports, getTeamHealthStatus, getUserGoals } from "@/utils/goalsData";
+import { 
+  Award, ChevronRight, Users, Shield, 
+  TrendingUp, Target, Trophy, Star, Medal,
+  BarChart3, Eye, ListChecks, Activity
+} from "lucide-react";
+import { getDirectReports, getTeamHealthStatus, getUserGoals, getGoalStatsByCategory } from "@/utils/goalsData";
 import { mockUsers } from "@/utils/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
@@ -20,10 +24,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Goal } from "@/types";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
   const [selectedTab, setSelectedTab] = useState<string>("overview");
+  const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [viewingCategory, setViewingCategory] = useState<string | null>(null);
   
   // Get manager's direct reports (for demo, we'll use Subhransu as the manager)
   const directReportIds = user ? getDirectReports(user.id) : [];
@@ -71,6 +80,31 @@ const ManagerDashboard = () => {
     const completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
     return completionRate > top.rate ? { category, rate: completionRate } : top;
   }, { category: "None", rate: 0 });
+  
+  // Get selected team member's details
+  const selectedMember = selectedTeamMember 
+    ? mockUsers.find(u => u.id === selectedTeamMember) 
+    : null;
+    
+  const selectedMemberGoals = selectedTeamMember 
+    ? getUserGoals(selectedTeamMember).filter(goal => 
+        !viewingCategory || goal.category === viewingCategory) 
+    : [];
+    
+  const selectedMemberStats = selectedTeamMember 
+    ? getGoalStatsByCategory(selectedTeamMember) 
+    : [];
+    
+  // Handle team member selection
+  const handleViewTeamMemberDetails = (userId: string) => {
+    setSelectedTeamMember(userId);
+    setDetailDialogOpen(true);
+  };
+  
+  // Handle filter by category
+  const handleFilterByCategory = (category: string | null) => {
+    setViewingCategory(category);
+  };
   
   return (
     <Layout>
@@ -190,12 +224,16 @@ const ManagerDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">
-                  {teamHealthStats.map((stats, index) => {
+                  {teamHealthStats.map((stats) => {
                     const teamMember = mockUsers.find(u => u.id === stats.userId);
                     if (!teamMember) return null;
                     
                     return (
-                      <div key={teamMember.id} className="border rounded-lg p-4">
+                      <div 
+                        key={teamMember.id} 
+                        className="border rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+                        onClick={() => handleViewTeamMemberDetails(teamMember.id)}
+                      >
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-3">
                             <Avatar>
@@ -264,7 +302,11 @@ const ManagerDashboard = () => {
               <CardContent>
                 <div className="space-y-2">
                   {directReports.map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50">
+                    <div 
+                      key={member.id} 
+                      className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50 transition-all cursor-pointer"
+                      onClick={() => handleViewTeamMemberDetails(member.id)}
+                    >
                       <div className="flex items-center space-x-3">
                         <Avatar>
                           <AvatarImage src={member.avatarUrl} alt={member.name} />
@@ -276,11 +318,22 @@ const ManagerDashboard = () => {
                         </div>
                       </div>
                       
-                      <Link to={`/goals?userId=${member.id}`}>
-                        <Button variant="outline" size="sm">
-                          View Goals <ChevronRight className="w-4 h-4 ml-1" />
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm" onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewTeamMemberDetails(member.id);
+                        }}>
+                          <Eye className="w-4 h-4 mr-1" />
+                          Details
                         </Button>
-                      </Link>
+                        
+                        <Link to={`/goals?userId=${member.id}`} onClick={(e) => e.stopPropagation()}>
+                          <Button variant="outline" size="sm">
+                            <ListChecks className="w-4 h-4 mr-1" />
+                            Goals
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -302,6 +355,7 @@ const ManagerDashboard = () => {
                       <TableHead>Health Bonus</TableHead>
                       <TableHead>Top Achievement</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -318,7 +372,7 @@ const ManagerDashboard = () => {
                         : null;
                       
                       return (
-                        <TableRow key={teamMember.id}>
+                        <TableRow key={teamMember.id} className="cursor-pointer hover:bg-gray-50" onClick={() => handleViewTeamMemberDetails(teamMember.id)}>
                           <TableCell>
                             <div className="flex items-center space-x-3">
                               <Avatar className="h-8 w-8">
@@ -371,6 +425,25 @@ const ManagerDashboard = () => {
                               </Badge>
                             )}
                           </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-1">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewTeamMemberDetails(teamMember.id);
+                                }}
+                              >
+                                <BarChart3 className="h-4 w-4" />
+                              </Button>
+                              <Link to={`/goals?userId=${teamMember.id}`} onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon">
+                                  <Activity className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       );
                     })}
@@ -381,7 +454,187 @@ const ManagerDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Team Member Detail Dialog */}
+      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          {selectedMember && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center space-x-3">
+                  <Avatar>
+                    <AvatarImage src={selectedMember.avatarUrl} alt={selectedMember.name} />
+                    <AvatarFallback>{selectedMember.name.substring(0, 2)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <DialogTitle className="text-xl">{selectedMember.name}'s Health Goals</DialogTitle>
+                    <p className="text-sm text-muted-foreground mt-1">{selectedMember.department} Department</p>
+                  </div>
+                </div>
+              </DialogHeader>
+              
+              <div className="space-y-6">
+                {/* Health categories */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold">Goal Categories</h3>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant={viewingCategory === null ? "secondary" : "outline"} 
+                        size="sm" 
+                        onClick={() => handleFilterByCategory(null)}
+                      >
+                        All
+                      </Button>
+                      <Button 
+                        variant={viewingCategory === "Physical Health" ? "secondary" : "outline"} 
+                        size="sm" 
+                        onClick={() => handleFilterByCategory("Physical Health")}
+                      >
+                        Physical
+                      </Button>
+                      <Button 
+                        variant={viewingCategory === "Mental Health" ? "secondary" : "outline"} 
+                        size="sm" 
+                        onClick={() => handleFilterByCategory("Mental Health")}
+                      >
+                        Mental
+                      </Button>
+                      <Button 
+                        variant={viewingCategory === "Nutrition" ? "secondary" : "outline"} 
+                        size="sm" 
+                        onClick={() => handleFilterByCategory("Nutrition")}
+                      >
+                        Nutrition
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    {selectedMemberStats.map(stat => (
+                      <Card key={stat.category} className={viewingCategory === stat.category ? "border-primary" : ""}>
+                        <CardContent className="pt-6">
+                          <h4 className="font-semibold text-sm">{stat.category}</h4>
+                          <div className="flex justify-between text-sm mt-2 mb-1">
+                            <span>Completion</span>
+                            <span>{stat.completed}/{stat.total} Goals</span>
+                          </div>
+                          <Progress 
+                            value={stat.completionRate} 
+                            className={`h-2 ${
+                              stat.category === "Physical Health" ? "bg-blue-200" : 
+                              stat.category === "Mental Health" ? "bg-purple-200" : 
+                              "bg-green-200"
+                            }`}
+                          />
+                          <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+                            <div className="bg-gray-50 rounded p-1 text-center">
+                              <p className="text-muted-foreground">Completed</p>
+                              <p className="font-medium">{stat.completed}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded p-1 text-center">
+                              <p className="text-muted-foreground">In Progress</p>
+                              <p className="font-medium">{stat.inProgress}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Goals list */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold">
+                    {viewingCategory ? `${viewingCategory} Goals` : "All Goals"}
+                  </h3>
+                  {selectedMemberGoals.length > 0 ? (
+                    <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+                      {selectedMemberGoals.map(goal => (
+                        <GoalListItem key={goal.id} goal={goal} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-6">
+                      No {viewingCategory?.toLowerCase()} goals found for this team member.
+                    </p>
+                  )}
+                </div>
+                
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={() => setDetailDialogOpen(false)}>
+                    Close
+                  </Button>
+                  <Link to={`/goals?userId=${selectedMember.id}`}>
+                    <Button>
+                      View All Goals
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </Layout>
+  );
+};
+
+// Goal list item component
+interface GoalListItemProps {
+  goal: Goal;
+}
+
+const GoalListItem = ({ goal }: GoalListItemProps) => {
+  // Calculate progress percentage
+  const progress = (goal.currentValue / goal.targetValue) * 100;
+  
+  // Status classes
+  const getStatusClass = () => {
+    switch (goal.status) {
+      case "completed": return "bg-green-100 text-green-800";
+      case "in-progress": return "bg-blue-100 text-blue-800";
+      case "not-started": return "bg-gray-100 text-gray-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+  
+  return (
+    <div className="border rounded-md p-3 hover:border-blue-200 transition-all">
+      <div className="flex justify-between items-start">
+        <div>
+          <h4 className="font-medium">{goal.title}</h4>
+          <p className="text-sm text-muted-foreground">{goal.description}</p>
+        </div>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusClass()}`}>
+          {goal.status === "in-progress" ? "In Progress" : 
+           goal.status === "not-started" ? "Not Started" :
+           goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}
+        </span>
+      </div>
+      
+      <div className="mt-3">
+        <div className="flex justify-between text-xs mb-1">
+          <span>Progress: {goal.currentValue}/{goal.targetValue} {goal.unit}</span>
+          <span>{progress.toFixed(0)}%</span>
+        </div>
+        <Progress value={progress} className="h-2" />
+      </div>
+      
+      <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+        <div className="flex items-center">
+          <Target className="w-3 h-3 mr-1" />
+          <span>Due: {new Date(goal.endDate).toLocaleDateString()}</span>
+        </div>
+        
+        {goal.healthBonusEligible && (
+          <div className="flex items-center text-amber-600">
+            <Award className="w-3 h-3 mr-1" />
+            <span>Bonus Eligible</span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

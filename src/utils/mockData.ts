@@ -1,4 +1,3 @@
-
 import { Activity, User, Reward, LeaderboardEntry } from '../types';
 
 // User mock data
@@ -27,8 +26,8 @@ export const mockUsers: User[] = [
   },
   {
     id: '3',
-    name: 'Nagarjun R',
-    email: 'nagarjun.r@company.com',
+    name: 'Nagarjun',
+    email: 'nagarjun@company.com',
     avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nagarjun',
     points: 950,
     level: 2,
@@ -37,8 +36,8 @@ export const mockUsers: User[] = [
   },
   {
     id: '4',
-    name: 'Santosh Shirol',
-    email: 'santosh.shirol@company.com',
+    name: 'Santosh',
+    email: 'santosh@company.com',
     avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Santosh',
     points: 2200,
     level: 5,
@@ -47,9 +46,9 @@ export const mockUsers: User[] = [
   },
   {
     id: '5',
-    name: 'Anil Sharma',
-    email: 'anil.sharma@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Anil',
+    name: 'Surath',
+    email: 'surath@company.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Surath',
     points: 1100,
     level: 3,
     joinedDate: new Date('2023-10-01').toISOString(),
@@ -57,23 +56,13 @@ export const mockUsers: User[] = [
   },
   {
     id: '6',
-    name: 'Priya Patel',
-    email: 'priya.patel@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Priya',
+    name: 'Virat',
+    email: 'virat@company.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Virat',
     points: 1850,
     level: 4,
     joinedDate: new Date('2023-09-15').toISOString(),
     department: 'Marketing',
-  },
-  {
-    id: '7',
-    name: 'Rajesh Kumar',
-    email: 'rajesh.kumar@company.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Rajesh',
-    points: 2050,
-    level: 5,
-    joinedDate: new Date('2023-08-05').toISOString(),
-    department: 'Engineering',
   }
 ];
 
