@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const updatedUser = await updateUser(userData);
       setUser(updatedUser);
+      return updatedUser;
     } finally {
       setIsLoading(false);
     }
