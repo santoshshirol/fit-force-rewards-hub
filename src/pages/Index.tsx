@@ -3,12 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Activity, Award, Heart, Smartphone, Users } from "lucide-react";
 import LoginForm from "@/components/auth/LoginForm";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [learnMoreOpen, setLearnMoreOpen] = useState(false);
 
   const handleGetStarted = () => {
     navigate("/dashboard");
+  };
+
+  const handleLearnMore = () => {
+    setLearnMoreOpen(true);
   };
 
   const features = [
@@ -57,7 +64,7 @@ const Index = () => {
               >
                 Get Started
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" onClick={handleLearnMore}>
                 Learn More
               </Button>
             </div>
@@ -145,6 +152,81 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Learn More Dialog */}
+      <Dialog open={learnMoreOpen} onOpenChange={setLearnMoreOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">FitForce: Employee Health & Wellness Platform</DialogTitle>
+            <DialogDescription>
+              Discover how our platform can transform your company's wellness program.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div>
+              <h3 className="text-lg font-semibold">How FitForce Works</h3>
+              <p className="mt-2 text-muted-foreground">
+                FitForce connects your employees through a gamified health platform that tracks fitness activities,
+                rewards healthy behaviors, and creates friendly competition to boost engagement.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <Activity className="w-5 h-5 mr-2 text-fitness-purple" />
+                  Track Daily Activities
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Log steps, workouts, water intake, and more to earn points and track progress toward health goals.
+                </p>
+              </div>
+              
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <Award className="w-5 h-5 mr-2 text-fitness-purple" />
+                  Earn Rewards
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Convert activity points into real rewards like gift cards, extra PTO, or company perks.
+                </p>
+              </div>
+              
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-fitness-purple" />
+                  Team Competition
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Compete on leaderboards with colleagues to stay motivated and build team camaraderie.
+                </p>
+              </div>
+              
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <Heart className="w-5 h-5 mr-2 text-fitness-purple" />
+                  Manager Insights
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Team leaders get valuable insights into their team's wellness journey without compromising privacy.
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-muted p-4 rounded-lg">
+              <h3 className="font-medium mb-2">Ready to get started?</h3>
+              <p className="text-sm mb-4">
+                Join the thousands of companies that have improved employee wellness, reduced healthcare costs, 
+                and boosted productivity with FitForce.
+              </p>
+              <Button onClick={() => { setLearnMoreOpen(false); navigate('/dashboard'); }}>
+                Get Started Now
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
