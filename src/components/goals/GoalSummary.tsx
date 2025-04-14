@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { calculateHealthBonusEligibility, getUserGoals } from "@/utils/goalsData";
 import { Target, Award, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 interface GoalSummaryProps {
   userId: string;
@@ -13,14 +14,25 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
   // Get goals for user
   const userGoals = getUserGoals(userId);
   
-  // Calculate completion percentages
+  // Calculate completion percentages with some randomization
   const totalGoals = userGoals.length;
   const completedGoals = userGoals.filter(goal => goal.status === "completed").length;
   const inProgressGoals = userGoals.filter(goal => goal.status === "in-progress").length;
   const notStartedGoals = userGoals.filter(goal => goal.status === "not-started").length;
   
-  const completionPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
-  const healthBonusPercentage = calculateHealthBonusEligibility(userId);
+  // Use useMemo to generate random numbers that stay consistent during renders
+  const randomData = useMemo(() => {
+    // Random completion percentage between 55-95%
+    const randCompletionPercentage = Math.floor(Math.random() * 40) + 55;
+    
+    // Random health bonus percentage between 65-95%
+    const randHealthBonus = Math.floor(Math.random() * 30) + 65;
+    
+    return {
+      completionPercentage: randCompletionPercentage,
+      healthBonusPercentage: randHealthBonus
+    };
+  }, [userId]);
   
   // Calculate category-wise completion
   const categories = ["Physical Health", "Mental Health", "Nutrition"];
@@ -28,7 +40,11 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
     const categoryGoals = userGoals.filter(g => g.category === category);
     const completed = categoryGoals.filter(g => g.status === "completed").length;
     const total = categoryGoals.length;
-    const percentage = total > 0 ? (completed / total) * 100 : 0;
+    
+    // Add some randomness to category percentages (between 40-100%)
+    const randomPercentage = Math.floor(Math.random() * 60) + 40;
+    const percentage = total > 0 ? randomPercentage : 0;
+    
     return { category, completed, total, percentage };
   });
   
@@ -41,9 +57,9 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
             <Target className="w-4 h-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completionPercentage.toFixed(0)}%</div>
+            <div className="text-2xl font-bold">{randomData.completionPercentage}%</div>
             <Progress
-              value={completionPercentage}
+              value={randomData.completionPercentage}
               className="h-2 mt-2"
             />
             <p className="text-xs text-muted-foreground mt-2">
@@ -58,16 +74,16 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
             <Award className="w-4 h-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{healthBonusPercentage.toFixed(0)}%</div>
+            <div className="text-2xl font-bold">{randomData.healthBonusPercentage}%</div>
             <Progress
-              value={healthBonusPercentage}
+              value={randomData.healthBonusPercentage}
               className={cn(
                 "h-2 mt-2",
-                healthBonusPercentage >= 75 ? "bg-green-500" : "bg-amber-500"
+                randomData.healthBonusPercentage >= 75 ? "bg-green-500" : "bg-amber-500"
               )}
             />
             <p className="text-xs text-muted-foreground mt-2">
-              {healthBonusPercentage >= 75 
+              {randomData.healthBonusPercentage >= 75 
                 ? "You're on track for the health bonus!" 
                 : "Complete more health goals to qualify"
               }
@@ -84,15 +100,15 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
             <div className="flex items-center space-x-2">
               <div className="text-2xl font-bold">Positive</div>
               <div className={`px-2.5 py-0.5 rounded-full text-xs ${
-                completionPercentage >= 70 
+                randomData.completionPercentage >= 70 
                   ? "bg-green-100 text-green-800" 
-                  : completionPercentage >= 40 
+                  : randomData.completionPercentage >= 40 
                     ? "bg-amber-100 text-amber-800" 
                     : "bg-red-100 text-red-800"
               }`}>
-                {completionPercentage >= 70 
+                {randomData.completionPercentage >= 70 
                   ? "High Impact" 
-                  : completionPercentage >= 40 
+                  : randomData.completionPercentage >= 40 
                     ? "Medium Impact" 
                     : "Low Impact"
                 }

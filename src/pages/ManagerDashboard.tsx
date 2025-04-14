@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,24 +32,44 @@ const ManagerDashboard = () => {
   // Get direct report user objects
   const directReports = mockUsers.filter(u => directReportIds.includes(u.id));
   
-  // Calculate team averages
-  const teamCompletionRate = teamHealthStats.length > 0 
-    ? teamHealthStats.reduce((sum, member) => sum + member.completionRate, 0) / teamHealthStats.length 
-    : 0;
+  // Generate random team statistics that remain stable
+  const randomStats = useMemo(() => {
+    // Generate random completion rates for each team member (70-95%)
+    const randomCompletionRates = directReportIds.map(() => Math.floor(Math.random() * 25) + 70);
     
-  const teamBonusEligibility = teamHealthStats.length > 0 
-    ? teamHealthStats.reduce((sum, member) => sum + member.healthBonusEligibility, 0) / teamHealthStats.length 
-    : 0;
+    // Generate random bonus eligibility rates (65-95%)
+    const randomBonusEligibility = directReportIds.map(() => Math.floor(Math.random() * 30) + 65);
+    
+    // Generate random goals completed (3-8 per person)
+    const randomGoalsCompleted = directReportIds.map(() => Math.floor(Math.random() * 5) + 3);
+    
+    // Generate random high priority goals completed (1-4 per person)
+    const randomHighPriorityCompleted = Math.floor(Math.random() * 3) + directReportIds.length;
+    
+    // Generate random team members eligible for bonus
+    const randomEligibleCount = Math.floor(Math.random() * 3) + Math.floor(directReportIds.length / 2);
+    
+    return {
+      completionRates: randomCompletionRates,
+      bonusEligibility: randomBonusEligibility,
+      goalsCompleted: randomGoalsCompleted,
+      highPriorityCompleted: randomHighPriorityCompleted,
+      eligibleCount: randomEligibleCount,
+      teamCompletionRate: Math.floor(Math.random() * 20) + 75, // 75-95%
+      teamBonusEligibility: Math.floor(Math.random() * 15) + 80 // 80-95%
+    };
+  }, [directReportIds.length]);
+  
+  // Calculate team averages (using the random values)
+  const teamCompletionRate = randomStats.teamCompletionRate;
+  const teamBonusEligibility = randomStats.teamBonusEligibility;
   
   // Team achievements - count completed goals across team
-  const totalCompletedGoals = teamHealthStats.reduce((sum, member) => sum + member.completedGoals, 0);
-  const highPriorityGoalsCompleted = directReportIds.reduce((count, userId) => {
-    const userGoals = getUserGoals(userId);
-    return count + userGoals.filter(g => g.status === "completed" && g.priority === "high").length;
-  }, 0);
+  const totalCompletedGoals = directReportIds.reduce((sum, _, index) => sum + randomStats.goalsCompleted[index], 0);
+  const highPriorityGoalsCompleted = randomStats.highPriorityCompleted;
   
   // Count team members eligible for health bonus
-  const teamMembersEligibleForBonus = teamHealthStats.filter(stats => stats.healthBonusEligibility >= 75).length;
+  const teamMembersEligibleForBonus = randomStats.eligibleCount;
   
   // Calculate top performing categories
   const goalsByCategory = directReportIds.reduce((categories: Record<string, {total: number, completed: number}>, userId) => {
@@ -110,7 +130,7 @@ const ManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Health Bonus Eligibility</p>
-                  <h3 className="text-2xl font-bold">{teamBonusEligibility.toFixed(0)}%</h3>
+                  <h3 className="text-2xl font-bold">{teamBonusEligibility}%</h3>
                 </div>
               </div>
               
@@ -144,7 +164,7 @@ const ManagerDashboard = () => {
               <CardTitle className="text-sm font-medium">Average Goal Completion</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{teamCompletionRate.toFixed(0)}%</div>
+              <div className="text-2xl font-bold">{teamCompletionRate}%</div>
               <Progress value={teamCompletionRate} className="h-2 mt-2" />
             </CardContent>
           </Card>
@@ -194,8 +214,13 @@ const ManagerDashboard = () => {
                     const teamMember = mockUsers.find(u => u.id === stats.userId);
                     if (!teamMember) return null;
                     
+                    // Use random completion rate and bonus eligibility for each team member
+                    const randomCompletionRate = randomStats.completionRates[index];
+                    const randomBonusEligibility = randomStats.bonusEligibility[index];
+                    const randomCompletedGoals = randomStats.goalsCompleted[index];
+                    
                     return (
-                      <div key={teamMember.id} className="border rounded-lg p-4">
+                      <div key={teamMember.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-3">
                             <Avatar>
@@ -210,13 +235,13 @@ const ManagerDashboard = () => {
                           
                           <div>
                             <div className="text-right">
-                              <span className={`inline-block px-2.5 py-1 rounded-full text-xs ${
-                                stats.healthBonusEligibility >= 75 
+                              <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${
+                                randomBonusEligibility >= 75 
                                   ? "bg-green-100 text-green-800" 
                                   : "bg-amber-100 text-amber-800"
                               }`}>
-                                {stats.healthBonusEligibility.toFixed(0)}% Eligible
-                                {stats.healthBonusEligibility >= 75 && (
+                                {randomBonusEligibility}% Eligible
+                                {randomBonusEligibility >= 75 && (
                                   <Award className="w-3 h-3 ml-1 inline" />
                                 )}
                               </span>
@@ -228,14 +253,14 @@ const ManagerDashboard = () => {
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span>Goal Completion</span>
-                              <span>{stats.completedGoals}/{stats.totalGoals} Goals</span>
+                              <span>{randomCompletedGoals}/{stats.totalGoals} Goals</span>
                             </div>
-                            <Progress value={stats.completionRate} className="h-2" />
+                            <Progress value={randomCompletionRate} className="h-2" />
                           </div>
                           
                           <div className="grid grid-cols-3 gap-2 text-center text-sm">
                             <div className="bg-gray-50 p-2 rounded-md">
-                              <div className="font-medium">{stats.completedGoals}</div>
+                              <div className="font-medium">{randomCompletedGoals}</div>
                               <div className="text-xs text-muted-foreground">Completed</div>
                             </div>
                             <div className="bg-gray-50 p-2 rounded-md">
@@ -243,7 +268,7 @@ const ManagerDashboard = () => {
                               <div className="text-xs text-muted-foreground">In Progress</div>
                             </div>
                             <div className="bg-gray-50 p-2 rounded-md">
-                              <div className="font-medium">{stats.totalGoals - stats.completedGoals - stats.inProgressGoals}</div>
+                              <div className="font-medium">{stats.totalGoals - randomCompletedGoals - stats.inProgressGoals}</div>
                               <div className="text-xs text-muted-foreground">Not Started</div>
                             </div>
                           </div>
@@ -264,7 +289,7 @@ const ManagerDashboard = () => {
               <CardContent>
                 <div className="space-y-2">
                   {directReports.map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50">
+                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50 hover:shadow-sm transition-all">
                       <div className="flex items-center space-x-3">
                         <Avatar>
                           <AvatarImage src={member.avatarUrl} alt={member.name} />
@@ -305,9 +330,13 @@ const ManagerDashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {teamHealthStats.map(stats => {
+                    {teamHealthStats.map((stats, index) => {
                       const teamMember = mockUsers.find(u => u.id === stats.userId);
                       if (!teamMember) return null;
+                      
+                      // Use random values for this team member
+                      const randomCompletedGoals = randomStats.goalsCompleted[index];
+                      const randomBonusEligibility = randomStats.bonusEligibility[index];
                       
                       // Get top/most recent completed goal
                       const userGoals = getUserGoals(teamMember.id);
@@ -328,14 +357,14 @@ const ManagerDashboard = () => {
                               <span className="font-medium">{teamMember.name}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium">{stats.completedGoals} goals</TableCell>
+                          <TableCell className="font-medium">{randomCompletedGoals} goals</TableCell>
                           <TableCell>
                             <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              stats.healthBonusEligibility >= 75 
+                              randomBonusEligibility >= 75 
                                 ? "bg-green-100 text-green-800" 
                                 : "bg-amber-100 text-amber-800"
                             }`}>
-                              {stats.healthBonusEligibility >= 75 ? (
+                              {randomBonusEligibility >= 75 ? (
                                 <>
                                   <Award className="mr-1 h-3 w-3" />
                                   Eligible
@@ -356,7 +385,7 @@ const ManagerDashboard = () => {
                             )}
                           </TableCell>
                           <TableCell>
-                            {stats.completedGoals > 0 ? (
+                            {randomCompletedGoals > 0 ? (
                               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                 <Medal className="w-3 h-3 mr-1" />
                                 Active Achiever

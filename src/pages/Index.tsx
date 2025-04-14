@@ -64,7 +64,11 @@ const Index = () => {
               >
                 Get Started
               </Button>
-              <Button size="lg" variant="outline" onClick={handleLearnMore}>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={handleLearnMore}
+              >
                 Learn More
               </Button>
             </div>
