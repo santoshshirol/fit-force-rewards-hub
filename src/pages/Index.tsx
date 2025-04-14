@@ -3,19 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Activity, Award, Heart, Smartphone, Users } from "lucide-react";
 import LoginForm from "@/components/auth/LoginForm";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [learnMoreOpen, setLearnMoreOpen] = useState(false);
 
   const handleGetStarted = () => {
     navigate("/dashboard");
-  };
-
-  const handleLearnMore = () => {
-    setLearnMoreOpen(true);
   };
 
   const features = [
@@ -43,39 +36,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Learn More Dialog */}
-      <Dialog open={learnMoreOpen} onOpenChange={setLearnMoreOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>About FitForce</DialogTitle>
-            <DialogDescription>
-              Your comprehensive workplace wellness solution
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>
-              FitForce is a corporate wellness platform designed to help employees maintain healthy habits while having fun.
-              By tracking activities, earning points, and competing with colleagues, users stay motivated on their wellness journey.
-            </p>
-            <h3 className="font-medium text-lg">Key Benefits:</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Track multiple health activities in one place</li>
-              <li>Earn points that can be redeemed for real rewards</li>
-              <li>Compete with colleagues on the leaderboard</li>
-              <li>Set and achieve personal health goals</li>
-              <li>Access insights about your health progress</li>
-              <li>Qualify for health bonus programs</li>
-            </ul>
-            <p>
-              Ready to start your wellness journey? Click "Get Started" to create your account and begin tracking your activities today.
-            </p>
-            <div className="flex justify-end mt-4">
-              <Button onClick={() => setLearnMoreOpen(false)}>Close</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-fitness-blue/20 py-20">
         <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center">
@@ -97,11 +57,7 @@ const Index = () => {
               >
                 Get Started
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                onClick={handleLearnMore}
-              >
+              <Button size="lg" variant="outline">
                 Learn More
               </Button>
             </div>

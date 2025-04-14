@@ -19,29 +19,8 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
   const inProgressGoals = userGoals.filter(goal => goal.status === "in-progress").length;
   const notStartedGoals = userGoals.filter(goal => goal.status === "not-started").length;
   
-  // Calculate goal progress percentage
-  const calculatedCompletionPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
-  
-  // Calculate progress for in-progress goals
-  const inProgressAvgCompletion = userGoals
-    .filter(goal => goal.status === "in-progress")
-    .reduce((sum, goal) => sum + (goal.currentValue / goal.targetValue), 0);
-  
-  const inProgressCompletionPercentage = inProgressGoals > 0 
-    ? (inProgressAvgCompletion / inProgressGoals) * 100 
-    : 0;
-  
-  // Total completion combines completed goals and partial progress of in-progress goals
-  const totalCompletionPercentage = totalGoals > 0
-    ? ((completedGoals * 100) + (inProgressCompletionPercentage * inProgressGoals / 100)) / totalGoals
-    : 0;
-  
-  // Ensure we have a meaningful value for demonstration
-  const completionPercentage = Math.max(5, totalCompletionPercentage);
-  
-  // Calculate health bonus eligibility
-  const calculatedHealthBonusPercentage = calculateHealthBonusEligibility(userId);
-  const healthBonusPercentage = Math.max(5, calculatedHealthBonusPercentage);
+  const completionPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
+  const healthBonusPercentage = calculateHealthBonusEligibility(userId);
   
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

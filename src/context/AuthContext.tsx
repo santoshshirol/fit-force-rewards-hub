@@ -66,7 +66,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const updatedUser = await updateUser(userData);
       setUser(updatedUser);
-      // Return void to match the interface
     } finally {
       setIsLoading(false);
     }
