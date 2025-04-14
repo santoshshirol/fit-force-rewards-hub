@@ -46,7 +46,7 @@ const Layout = ({ children }: LayoutProps) => {
     { title: "Leaderboard", icon: Award, path: "/leaderboard" },
     { title: "Goals", icon: Target, path: "/goals" },
     { title: "Rewards", icon: Award, path: "/rewards" },
-    { title: "Manager", icon: BarChart, path: "/manager" },
+    { title: "Manager Dashboard", icon: BarChart, path: "/manager" }, // Updated text from "Manager" to "Manager Dashboard"
   ];
 
   return (
@@ -54,7 +54,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className="flex h-screen overflow-hidden">
         <div className="flex h-screen w-full overflow-hidden">
           {/* Sidebar */}
-          <Sidebar>
+          <Sidebar collapsible="offcanvas"> {/* Ensure the sidebar is visible on mobile with proper collapse behavior */}
             <SidebarContent>
               {/* Logo and Name Section */}
               <div className="p-4 flex flex-col items-center space-y-3">
