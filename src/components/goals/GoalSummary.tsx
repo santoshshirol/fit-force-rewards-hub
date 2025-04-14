@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { calculateHealthBonusEligibility, getUserGoals } from "@/utils/goalsData";
-import { Target, Award, TrendingUp } from "lucide-react";
+import { Target, Award, TrendingUp, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
@@ -51,16 +51,16 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <Card className="overflow-hidden border-l-4 border-l-blue-500">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 bg-blue-50/50">
             <CardTitle className="text-sm font-medium">Goal Completion</CardTitle>
-            <Target className="w-4 h-4 text-muted-foreground" />
+            <Target className="w-4 h-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="text-2xl font-bold">{randomData.completionPercentage}%</div>
             <Progress
               value={randomData.completionPercentage}
-              className="h-2 mt-2"
+              className="h-2 mt-2 bg-blue-100"
             />
             <p className="text-xs text-muted-foreground mt-2">
               {completedGoals} completed, {inProgressGoals} in progress, {notStartedGoals} not started
@@ -68,12 +68,12 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <Card className="overflow-hidden border-l-4 border-l-green-500">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 bg-green-50/50">
             <CardTitle className="text-sm font-medium">Health Bonus Eligibility</CardTitle>
-            <Award className="w-4 h-4 text-muted-foreground" />
+            <Award className="w-4 h-4 text-green-600" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="text-2xl font-bold">{randomData.healthBonusPercentage}%</div>
             <Progress
               value={randomData.healthBonusPercentage}
@@ -91,12 +91,12 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <Card className="overflow-hidden border-l-4 border-l-purple-500">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 bg-purple-50/50">
             <CardTitle className="text-sm font-medium">Performance Impact</CardTitle>
-            <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            <TrendingUp className="w-4 h-4 text-purple-600" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="flex items-center space-x-2">
               <div className="text-2xl font-bold">Positive</div>
               <div className={`px-2.5 py-0.5 rounded-full text-xs ${
@@ -124,7 +124,13 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
       {/* Category-wise completion */}
       <div className="grid gap-4 md:grid-cols-3">
         {categoryCompletions.map((cat) => (
-          <Card key={cat.category}>
+          <Card key={cat.category} className={`overflow-hidden border-t-4 ${
+            cat.category === "Physical Health" 
+              ? "border-t-blue-500" 
+              : cat.category === "Mental Health" 
+                ? "border-t-purple-500" 
+                : "border-t-green-500"
+          }`}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">{cat.category}</CardTitle>
             </CardHeader>
@@ -135,7 +141,13 @@ const GoalSummary = ({ userId }: GoalSummaryProps) => {
               </div>
               <Progress
                 value={cat.percentage}
-                className="h-2"
+                className={`h-2 ${
+                  cat.category === "Physical Health" 
+                    ? "bg-blue-100" 
+                    : cat.category === "Mental Health" 
+                      ? "bg-purple-100" 
+                      : "bg-green-100"
+                }`}
               />
             </CardContent>
           </Card>
