@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -533,6 +532,7 @@ const ManagerDashboard = () => {
                       // Use random values for this team member
                       const randomCompletedGoals = randomStats.goalsCompleted[index];
                       const randomBonusEligibility = randomStats.bonusEligibility[index];
+                      const randomCompletionRate = randomStats.completionRates[index];
                       
                       // Get top/most recent completed goal
                       const userGoals = getUserGoals(teamMember.id);

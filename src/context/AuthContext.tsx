@@ -21,70 +21,52 @@ interface AuthContextType {
   changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
+// Default demo user
+const demoUser: AuthUser = {
+  id: 'demo-user-1',
+  email: 'demo@fitforce.com',
+  name: 'Demo User',
+  token: 'demo-token',
+  department: 'Engineering'
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(demoUser);
+  const [isLoading, setIsLoading] = useState(false);
   
+  // Always return demo user as logged in
   useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = getUser();
-    if (storedUser) {
-      setUser(storedUser);
-    }
-    setIsLoading(false);
+    setUser(demoUser);
   }, []);
   
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const user = await loginUser(email, password);
-      setUser(user);
-    } finally {
-      setIsLoading(false);
-    }
+    setUser(demoUser);
   };
   
   const signup = async (email: string, password: string, name: string, department: string) => {
-    setIsLoading(true);
-    try {
-      const user = await signupUser(email, password, name, department);
-      setUser(user);
-    } finally {
-      setIsLoading(false);
-    }
+    setUser(demoUser);
   };
   
   const logout = () => {
-    logoutUser();
-    setUser(null);
+    // In demo mode, don't actually log out
+    console.log('Logout clicked in demo mode');
   };
 
   const updateUserInfo = async (userData: Partial<AuthUser>) => {
-    setIsLoading(true);
-    try {
-      const updatedUser = await updateUser(userData);
-      setUser(updatedUser);
-    } finally {
-      setIsLoading(false);
-    }
+    setUser({ ...demoUser, ...userData });
   };
 
   const changePassword = async (currentPassword: string, newPassword: string) => {
-    setIsLoading(true);
-    try {
-      return await updatePassword(currentPassword, newPassword);
-    } finally {
-      setIsLoading(false);
-    }
+    return true;
   };
   
   return (
     <AuthContext.Provider 
       value={{ 
         user, 
-        isAuthenticated: !!user, 
+        isAuthenticated: true, // Always authenticated in demo mode
         login, 
         signup, 
         logout, 
