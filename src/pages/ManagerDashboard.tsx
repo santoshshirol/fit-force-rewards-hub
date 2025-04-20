@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,20 +38,28 @@ const ManagerDashboard = () => {
   
   // Generate random team statistics that remain stable
   const randomStats = useMemo(() => {
+    // Make sure we have valid lengths for our arrays - this fixes the "Invalid array length" error
+    const reportsLength = directReportIds.length || 0;
+    
     // Generate random completion rates for each team member (70-95%)
-    const randomCompletionRates = directReportIds.map(() => Math.floor(Math.random() * 25) + 70);
+    const randomCompletionRates = Array.from({ length: reportsLength }, 
+      () => Math.floor(Math.random() * 25) + 70);
     
     // Generate random bonus eligibility rates (65-95%)
-    const randomBonusEligibility = directReportIds.map(() => Math.floor(Math.random() * 30) + 65);
+    const randomBonusEligibility = Array.from({ length: reportsLength }, 
+      () => Math.floor(Math.random() * 30) + 65);
     
     // Generate random goals completed (3-8 per person)
-    const randomGoalsCompleted = directReportIds.map(() => Math.floor(Math.random() * 5) + 3);
+    const randomGoalsCompleted = Array.from({ length: reportsLength }, 
+      () => Math.floor(Math.random() * 5) + 3);
     
     // Generate random high priority goals completed (1-4 per person)
-    const randomHighPriorityCompleted = Math.floor(Math.random() * 3) + directReportIds.length;
+    const randomHighPriorityCompleted = Math.floor(Math.random() * 3) + 
+      Math.max(1, Math.floor(reportsLength / 2));
     
     // Generate random team members eligible for bonus
-    const randomEligibleCount = Math.floor(Math.random() * 3) + Math.floor(directReportIds.length / 2);
+    const randomEligibleCount = Math.floor(Math.random() * 3) + 
+      Math.max(1, Math.floor(reportsLength / 2));
     
     return {
       completionRates: randomCompletionRates,
@@ -93,7 +102,15 @@ const ManagerDashboard = () => {
   const teamBonusEligibility = randomStats.teamBonusEligibility;
   
   // Team achievements - count completed goals across team
-  const totalCompletedGoals = directReportIds.reduce((sum, _, index) => sum + randomStats.goalsCompleted[index], 0);
+  const totalCompletedGoals = directReportIds.length > 0 ? 
+    directReportIds.reduce((sum, _, index) => {
+      // Make sure the index is valid for the goalsCompleted array
+      if (index < randomStats.goalsCompleted.length) {
+        return sum + randomStats.goalsCompleted[index];
+      }
+      return sum;
+    }, 0) : 0;
+    
   const highPriorityGoalsCompleted = randomStats.highPriorityCompleted;
   
   // Count team members eligible for health bonus
@@ -306,15 +323,15 @@ const ManagerDashboard = () => {
             <CardContent>
               <div className="text-2xl font-bold">{teamMembersEligibleForBonus} team members</div>
               <div className="flex mt-2 gap-1">
-                {Array(teamMembersEligibleForBonus).fill(0).map((_, i) => (
+                {Array.from({ length: teamMembersEligibleForBonus }).map((_, i) => (
                   <div key={i} className="h-2 flex-1 rounded-full bg-amber-500"></div>
                 ))}
-                {Array(directReports.length - teamMembersEligibleForBonus).fill(0).map((_, i) => (
+                {Array.from({ length: Math.max(0, directReports.length - teamMembersEligibleForBonus) }).map((_, i) => (
                   <div key={i} className="h-2 flex-1 rounded-full bg-gray-200"></div>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {((teamMembersEligibleForBonus / directReports.length) * 100).toFixed(0)}% of team
+                {directReports.length > 0 ? ((teamMembersEligibleForBonus / directReports.length) * 100).toFixed(0) : 0}% of team
               </p>
             </CardContent>
           </Card>
@@ -357,9 +374,13 @@ const ManagerDashboard = () => {
                     if (!teamMember) return null;
                     
                     // Use random completion rate and bonus eligibility for each team member
-                    const randomCompletionRate = randomStats.completionRates[index];
-                    const randomBonusEligibility = randomStats.bonusEligibility[index];
-                    const randomCompletedGoals = randomStats.goalsCompleted[index];
+                    // Safely access array values with index checking
+                    const randomCompletionRate = index < randomStats.completionRates.length ? 
+                      randomStats.completionRates[index] : 75;
+                    const randomBonusEligibility = index < randomStats.bonusEligibility.length ? 
+                      randomStats.bonusEligibility[index] : 65;
+                    const randomCompletedGoals = index < randomStats.goalsCompleted.length ? 
+                      randomStats.goalsCompleted[index] : 3;
                     
                     const statusColors = {
                       high: "bg-green-500",
@@ -453,56 +474,60 @@ const ManagerDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 pt-4">
-                  {directReports.map((member, index) => (
-                    <div 
-                      key={member.id} 
-                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 hover:shadow-sm transition-all"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
-                          <AvatarImage src={member.avatarUrl} alt={member.name} />
-                          <AvatarFallback>{member.name.substring(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-medium">{member.name}</h3>
-                          <div className="flex items-center">
-                            <p className="text-sm text-muted-foreground">{member.department}</p>
-                            
-                            {/* Random status badges */}
-                            {index % 3 === 0 && (
-                              <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 text-xs py-0.5">
-                                <CheckCircle2 className="w-3 h-3 mr-1" /> On Track
-                              </Badge>
-                            )}
-                            {index % 3 === 1 && (
-                              <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 text-xs py-0.5">
-                                <Clock className="w-3 h-3 mr-1" /> Needs Review
-                              </Badge>
-                            )}
-                            {index % 3 === 2 && (
-                              <Badge variant="outline" className="ml-2 bg-red-50 text-red-700 text-xs py-0.5">
-                                <AlertCircle className="w-3 h-3 mr-1" /> Attention
-                              </Badge>
-                            )}
+                  {directReports.map((member, index) => {
+                    // Safe access with index checking
+                    const safeIndex = index < randomStats.completionRates.length ? index : 0;
+                    return (
+                      <div 
+                        key={member.id} 
+                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Avatar>
+                            <AvatarImage src={member.avatarUrl} alt={member.name} />
+                            <AvatarFallback>{member.name.substring(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-medium">{member.name}</h3>
+                            <div className="flex items-center">
+                              <p className="text-sm text-muted-foreground">{member.department}</p>
+                              
+                              {/* Random status badges */}
+                              {index % 3 === 0 && (
+                                <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 text-xs py-0.5">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" /> On Track
+                                </Badge>
+                              )}
+                              {index % 3 === 1 && (
+                                <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 text-xs py-0.5">
+                                  <Clock className="w-3 h-3 mr-1" /> Needs Review
+                                </Badge>
+                              )}
+                              {index % 3 === 2 && (
+                                <Badge variant="outline" className="ml-2 bg-red-50 text-red-700 text-xs py-0.5">
+                                  <AlertCircle className="w-3 h-3 mr-1" /> Attention
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <div className="text-right hidden md:block">
-                          <div className="text-sm font-medium">{randomStats.completionRates[index]}% Complete</div>
-                          <div className="text-xs text-muted-foreground">
-                            {randomStats.goalsCompleted[index]} goals completed
+                        
+                        <div className="flex items-center gap-2">
+                          <div className="text-right hidden md:block">
+                            <div className="text-sm font-medium">{randomStats.completionRates[safeIndex]}% Complete</div>
+                            <div className="text-xs text-muted-foreground">
+                              {randomStats.goalsCompleted[safeIndex]} goals completed
+                            </div>
                           </div>
+                          <Link to={`/goals?userId=${member.id}`}>
+                            <Button variant="outline" size="sm">
+                              View Goals <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
+                          </Link>
                         </div>
-                        <Link to={`/goals?userId=${member.id}`}>
-                          <Button variant="outline" size="sm">
-                            View Goals <ChevronRight className="w-4 h-4 ml-1" />
-                          </Button>
-                        </Link>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -529,10 +554,11 @@ const ManagerDashboard = () => {
                       const teamMember = mockUsers.find(u => u.id === stats.userId);
                       if (!teamMember) return null;
                       
-                      // Use random values for this team member
-                      const randomCompletedGoals = randomStats.goalsCompleted[index];
-                      const randomBonusEligibility = randomStats.bonusEligibility[index];
-                      const randomCompletionRate = randomStats.completionRates[index];
+                      // Use random values for this team member with safety checks
+                      const safeIndex = index < randomStats.completionRates.length ? index : 0;
+                      const randomCompletedGoals = randomStats.goalsCompleted[safeIndex];
+                      const randomBonusEligibility = randomStats.bonusEligibility[safeIndex];
+                      const randomCompletionRate = randomStats.completionRates[safeIndex];
                       
                       // Get top/most recent completed goal
                       const userGoals = getUserGoals(teamMember.id);
